@@ -1,0 +1,761 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title style="font-family: cursive;">
+      <!-- <img src="assets/toQRBackground.PNG" style="width: 20px;"> -->
+      <strong>ToQR</strong>
+    </ion-title>
+    <ion-button  slot="end" color="dark" (click)="scanQR()" style="font-family: cursive; margin: 5px;"><ion-icon name="qr-code"></ion-icon><strong style="text-transform: capitalize"> Scan</strong><strong>QR</strong></ion-button>
+
+    
+    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" style="font-size: 20px;">
+
+  <div style="margin-bottom: 30px;font-size: 20px;">
+    <ion-segment scrollable [(ngModel)]="selectedName" *ngFor="let i of rows" color="dark" >
+      <ng-container *ngFor="let p of types | slice:(i*segmentsPerRow):(i+1)*segmentsPerRow">
+        <ion-segment-button value="{{p.text}}">
+          <ion-label style="font-family: cursive; text-transform:capitalize;"><strong>{{p.text}}</strong></ion-label>
+          <ion-icon name="{{p.name}}"></ion-icon>        
+        </ion-segment-button>
+      </ng-container>
+    </ion-segment>
+  </div>
+
+  
+
+
+        <!-- This shows the result of QR scan -->
+
+   <ion-card *ngIf="scannedCode!==''">
+    <ion-card-header>
+      <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The scanned QR shows</ion-card-subtitle>
+
+     </ion-card-header>
+     <ion-card-content style="text-align: center;">
+      {{scannedCode}}
+     </ion-card-content>
+   </ion-card>
+
+   <!-- Empty selected name -->
+<div *ngIf="selectedName==null">
+  <ion-card>
+    <img src="assets/toQRLogo.PNG" style="width: 100%;">
+  </ion-card>
+</div>
+   
+
+
+  <!-- Text card -->
+  <div *ngIf="selectedName=='Text'" >
+    <ion-card *ngIf="text!==''">
+      <ion-card-header>
+       <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+  
+      </ion-card-header>
+      <ion-card-content style="text-align: center;">
+       <ngx-qrcode [elementType]="elementType" [value]="text"   errorCorrectionLevel="L"></ngx-qrcode>
+       <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+      </ion-card-content>
+    </ion-card>
+    <ion-card style="padding-top: 10px;">
+      <ion-card-subtitle style="padding-left: 6px;"><strong>Text:</strong></ion-card-subtitle>
+      <!-- A button to clear text -->
+      
+      <!-- Text Area -->
+      <ion-textarea [(ngModel)]= "text" spellcheck="true" autogrow="true" rows="6" cols="20" placeholder="Please fill in the text here"></ion-textarea>
+    </ion-card>
+    <div class="custom-text"><strong style="color: red;">*</strong>The QR Code will be difficult to recognise when the content exceeds 150 characters</div>
+    <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+  </div>
+  
+
+  <!-- Website Card -->
+  <div *ngIf="selectedName=='Website'" >
+    <ion-card *ngIf="website!==''">
+      <ion-card-header>
+       <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+  
+      </ion-card-header>
+      <ion-card-content style="text-align: center;">
+       <ngx-qrcode [elementType]="elementType" [value]="website"></ngx-qrcode>
+       <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+      </ion-card-content>
+    </ion-card>
+    <ion-card style="padding-top: 10px;">
+      <ion-card-subtitle style="padding-left: 6px;"><strong>Website:</strong></ion-card-subtitle>
+      <!-- A button to clear text -->
+      
+      <!-- Text Area -->
+      <ion-textarea [(ngModel)]= "website" type="url" spellcheck="true" autogrow="true" rows="6" cols="20" placeholder="Please fill in the website address"></ion-textarea>
+      
+      <ion-button (click)= "addToTextField('http://')" type="button" color="dark" style="margin-left: 10px;"><ion-label style="text-transform: lowercase;">http://</ion-label></ion-button>
+      <ion-button (click)= "addToTextField('https://')" type="button" color="dark" style="margin-left: 10px;"><ion-label style="text-transform: lowercase;">https://</ion-label></ion-button>
+      <ion-button (click)= "addToTextField('www.')" type="button" color="dark" style="margin-left: 10px;"><ion-label style="text-transform: lowercase;">www.</ion-label></ion-button>
+      <ion-button (click)= "addToTextField('.com')" type="button" color="dark" style="margin-left: 10px;"><ion-label style="text-transform: lowercase;">.com</ion-label></ion-button>
+  
+  
+    </ion-card>
+    <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+  </div>
+  
+
+
+  <!-- Contact Card -->
+  <!-- <div *ngIf="types[2].value">
+    <ion-button  slot="end" color="dark" (click)="createContact()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+    <ion-card >
+      <ion-card-header>
+       <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+  
+      </ion-card-header>
+      <ion-card-content style="text-align: center;">
+       <ngx-qrcode [elementType]="elementType" [value]="contact"></ngx-qrcode>
+      </ion-card-content>
+    </ion-card>
+    <ion-card style="padding-top: 10px; padding-bottom: 10px;">
+      <ion-item>
+        <ion-label position="stacked"><strong style="color: red;">*</strong><strong>Name:</strong></ion-label>
+        <ion-input [(ngModel)]="inputName" type="text" required style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong style="color: red;">*</strong><strong>Phone Number:</strong></ion-label>
+        <ion-input [(ngModel)]="inputNum" type="number" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong>Email:</strong></ion-label>
+        <ion-input [(ngModel)]="inputEmail" type="email" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong>Company:</strong></ion-label>
+        <ion-input [(ngModel)]="inputCompany" type="text" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong>Job Title:</strong></ion-label>
+        <ion-input [(ngModel)]="inputJobTitle" type="text" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong>Address:</strong></ion-label>
+        <ion-input [(ngModel)]="inputAddress" type="text" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      Text Area -->
+      <!-- <ion-item>
+        <ion-label position="stacked"><strong>Memo:</strong></ion-label>
+        <ion-textarea style=" width: 100%; padding: 4px; border-radius: 4px; margin:5px;" spellcheck="true" autogrow="true" rows="6" cols="20" placeholder="Please fill in more information"></ion-textarea>
+      </ion-item>
+    </ion-card>
+    <div class="custom-text"><strong style="color: red;">*</strong>Enter the phone number in proper format with country code included. For Example, +9174XXXXXX24, where +91 is the country code for India.</div>
+
+  </div> -->
+  
+
+
+
+  <!-- Wi Fi Card -->
+  <div *ngIf="selectedName=='Wi-Fi'" >
+    <ion-card *ngIf="wifi!=='WIFI:S:My_SSID;T:WPA;P:key goes here;H:false'">
+      <ion-card-header>
+       <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+  
+      </ion-card-header>
+      <ion-card-content style="text-align: center;">
+       <ngx-qrcode [elementType]="elementType" [value]="wifi"   errorCorrectionLevel="L"></ngx-qrcode>
+       <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-item>
+        <ion-label position="stacked"><strong>Network name (SSID):</strong></ion-label>
+        <ion-input [(ngModel)]="wifi_id" type="text" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong>Security:</strong></ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-segment [(ngModel)]="wifi_t" (ionChange)="segmentChanged2($event)" color="dark" value="WPA/WPA2">
+
+          <ion-segment-button value="WPA/WPA2">
+            <ion-label style="font-family: cursive; text-transform:capitalize;">WPA/WPA2</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="WEP">
+            <ion-label style="font-family: cursive; text-transform:capitalize;">WEP</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="None">
+            <ion-label style="font-family: cursive; text-transform:capitalize;">None</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"><strong>Password:</strong></ion-label>
+        <ion-input [(ngModel)]="wifi_key" type="password" style="margin-top: 5px;"></ion-input>
+      </ion-item>
+      <ion-item>
+        <!-- Toogle switch -->
+        <ion-label>Hidden Network</ion-label>
+        <ion-toggle  [(ngModel)]="wifi_h" color="dark"></ion-toggle>
+
+      </ion-item>
+    </ion-card>
+<div style="text-align: center;">
+  <ion-button  color="dark" (click)="wifiFn()" style="font-family: cursive;margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+</div>
+
+  </div>
+<!-- Calender Card -->
+<div *ngIf="selectedName=='Calendar'" >
+  <ion-card *ngIf="calendar!=='http://www.google.com/calendar/event?action=TEMPLATE&text&dates&details&location'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="calendar"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked"><strong>Title:</strong></ion-label>
+      <ion-input [(ngModel)]="calendarTitle" type="text" style="margin-top: 5px;"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked"><strong>Location:</strong></ion-label>
+      <ion-input [(ngModel)]="calendarLocation" type="text" style="margin-top: 5px;"></ion-input>
+
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked"><strong>Start:</strong></ion-label>
+      <ion-input [(ngModel)]="calendarStart" type="datetime-local" ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked"><strong>End:</strong></ion-label>
+      <ion-input [(ngModel)]="calendarEnd" type="datetime-local"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked"><strong>Description:</strong></ion-label>
+      <ion-textarea [(ngModel)]="calendarDes" style=" width: 100%; padding: 4px; border-radius: 4px; margin:5px;" spellcheck="true" autogrow="true" rows="6" cols="20" placeholder="Please fill in more information"></ion-textarea>
+    </ion-item>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR Code will be difficult to recognise when the content in description exceeds 150 characters. </div>
+  <div class="custom-text"><strong style="color: red;">*</strong>Upon generating QR, there might be a slight time difference since the link is in UTC.</div>
+
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="calendarFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+
+<!-- Phone Number -->
+<div *ngIf="selectedName=='Phone'">
+  <ion-card *ngIf="phone!=='tel: '">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="phone" errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Phone Number:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "phoneAppend" inputmode="tel" spellcheck="true" rows="6" cols="20" placeholder="Please fill in the phone number"></ion-textarea>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>Enter the phone number in proper format with country code included. For Example, +9174XXXXXX24, where +91 is the country code for India.</div>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="phoneFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+</div>
+ 
+<!-- URL -->
+<div *ngIf="selectedName=='URL'" >
+  <ion-card *ngIf="url!==''">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="url"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>URL:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "url" inputmode="url" rows="6" cols="20" placeholder="Please fill in the URL"></ion-textarea>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+</div>
+
+
+<!-- SMS -->
+<div *ngIf="selectedName=='SMS'" >
+  <ion-card *ngIf="sms!=='sms:null &body=null'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="sms"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-item>
+      <!-- A button to clear text -->
+      <!-- Text Area -->
+      <ion-label position="stacked"><strong>Recipient:</strong></ion-label>
+      <ion-textarea [(ngModel)]="smsNum" inputmode="tel" style="text-align: left;" spellcheck="true" rows="1" cols="20" placeholder="Please fill in the recipient"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked"><strong>Message:</strong></ion-label>
+      <!-- A button to clear text -->
+      
+      <!-- Text Area -->
+      <ion-textarea [(ngModel)]="smsMes" inputmode="text" spellcheck="true" rows="6" cols="20" placeholder="Please fill in the content"></ion-textarea>
+  
+    </ion-item>
+      </ion-card>
+      <div class="custom-text"><strong style="color: red;">*</strong>Enter the recipient contact in proper format with country code included. For Example, +9174XXXXXX24, where +91 is the country code for India.</div>
+      <div style="text-align: center;">
+        <ion-button  slot="end" color="dark" (click)="smsFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+    
+      </div>
+</div>
+  
+
+<!-- Instagram -->
+<div *ngIf="selectedName=='Instagram'" >
+  <ion-card *ngIf="instagram!=='https://instagram.com/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="instagram"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Instagram:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "instagramAppend" rows="6" cols="20" placeholder="Please fill in the username"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="instagramFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+
+
+<!-- Whatsapp -->
+<div *ngIf="selectedName=='WhatsApp'" >
+
+  <ion-card *ngIf="whatsapp!=='whatsapp://send?phone='">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="whatsapp"    cssClass="aclass"
+     errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>WhatsApp:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "whatsappAppend" inputmode="tel" spellcheck="true" rows="6" cols="20" placeholder="Please fill in the phone number"></ion-textarea>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>Enter the phone number in proper format with country code included. For Example, +9174XXXXXX24, where +91 is the country code for India.</div>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="whatsappFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+</div>
+  
+
+
+<!-- Facebook Card -->
+<div *ngIf="selectedName=='Facebook'" >
+  <ion-card *ngIf="facebook!=='fb://profile/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="facebook"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Facebook:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "facebookAppend" rows="6" cols="20" placeholder="Please fill in the Facebook ID"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="facebookFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+
+<!-- Twitter Card -->
+<div *ngIf="selectedName=='Twitter'">
+  <ion-card *ngIf="twitter!=='https://twitter.com/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="twitter"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Twitter:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "twitterAppend" rows="6" cols="20" placeholder="Please fill in the username"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="twitterFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+</div>
+
+
+
+<!-- PayPal Card -->
+<div *ngIf="selectedName=='PayPal'">
+  <ion-card *ngIf="paypal!=='https://www.paypal.me/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="paypal"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>PayPal:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea  [(ngModel)]= "paypalAppend" rows="6" cols="20" placeholder="Please fill in the PayPal.Me or username"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="paypalFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+
+
+<!-- YouTube Card -->
+<div *ngIf="selectedName=='YouTube'">
+  <ion-card *ngIf="youtube!=='https://www.youtube.com/channel/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="youtube"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>YouTube:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "youtubeAppend" rows="6" cols="20" placeholder="Please fill in the channel ID"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="youtubeFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+
+
+
+<!-- LinkedIn Card -->
+<div *ngIf="selectedName=='LinkedIn'" >
+  <ion-card *ngIf="linkedin!==''">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="linkedin"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>LinkedIn:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "linkedin" inputmode="url" rows="6" cols="20" placeholder="Please fill in the LinkedIn profile link"></ion-textarea>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+</div>
+
+<!-- WeChat Card -->
+<div *ngIf="selectedName=='WeChat'" >
+  <ion-card *ngIf="wechat!==''">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="wechat"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>WeChat:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "wechat" inputmode="url" rows="6" cols="20" placeholder="Please fill in the profile link"></ion-textarea>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+</div>
+
+
+<!-- Pinterest Card -->
+<div *ngIf="selectedName=='Pinterest'">
+  <ion-card *ngIf="pinterest!=='https://www.pinterest.com/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="pinterest"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Pinterest:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "pinterestAppend" rows="6" cols="20" placeholder="Please fill in the username"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="pinterestFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+
+<!-- Email Card -->
+<div *ngIf="selectedName=='Email'" >
+  <ion-card *ngIf="email!=='mailto:null? cc=null &bcc=null &subject=null &body=null'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="email"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-item>
+      <!-- A button to clear text -->
+      <!-- Text Area -->
+      <ion-label position="stacked"><strong>Email:</strong></ion-label>
+      <ion-textarea [(ngModel)] = "emailAdd" inputmode="email" style="text-align: left;" spellcheck="true" rows="1" cols="20" placeholder="Please fill in the email adress"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <!-- A button to clear text -->
+      <!-- Text Area -->
+      <ion-label position="stacked"><strong>Cc:</strong></ion-label>
+      <ion-textarea [(ngModel)] = "emailCc" inputmode="email" style="text-align: left;" spellcheck="true" rows="1" cols="20" placeholder="Please fill in the email address"></ion-textarea>
+    </ion-item>
+    <ion-item>
+        <!-- A button to clear text -->
+        <!-- Text Area -->
+        <ion-label position="stacked"><strong>Bcc:</strong></ion-label>
+        <ion-textarea [(ngModel)] = "emailBcc" inputmode="email" style="text-align: left;" spellcheck="true" rows="1" cols="20" placeholder="Please fill in the email address"></ion-textarea>
+    </ion-item>
+    <ion-item>
+        <!-- A button to clear text -->
+        <!-- Text Area -->
+        <ion-label position="stacked"><strong>Subject:</strong></ion-label>
+        <ion-textarea [(ngModel)] = "emailSub" inputmode="text" style="text-align: left;" spellcheck="true" rows="1" cols="20" placeholder="Please fill in the Subject"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked"><strong>Content:</strong></ion-label>
+      <!-- A button to clear text -->
+      
+      <!-- Text Area -->
+      <ion-textarea [(ngModel)] = "emailMes" inputmode="text" spellcheck="true" rows="6" cols="20" placeholder="Please fill in the content"></ion-textarea>
+  
+    </ion-item>
+      </ion-card>
+      <div style="text-align: center;">
+        <ion-button  slot="end" color="dark" (click)="emailFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+    
+      </div>
+
+</div>
+
+<!-- Skype Card -->
+<div *ngIf="selectedName=='Skype'" >
+  <ion-card *ngIf="skype!==''">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="skype"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Skype:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "skype" inputmode="url" rows="6" cols="20" placeholder="Please fill in the profile link"></ion-textarea>
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+</div>
+
+
+<!-- SnapChat Card -->
+<div *ngIf="selectedName=='Snapchat'" >
+  <ion-card *ngIf="snapchat!=='https://www.snapchat.com/add/'">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="snapchat"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>Snapchat:</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    
+    <!-- Text Area -->
+    <ion-textarea [(ngModel)]= "snapchatAppend" rows="6" cols="20" placeholder="Please fill in the username"></ion-textarea>
+  </ion-card>
+  <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="snapchatFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div>
+
+</div>
+<!-- Image uploading requires server -->
+<div *ngIf="selectedName=='Image'">
+  <ion-card *ngIf="image!==null">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="image"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>This feature will be enabled soon</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    <ion-input  disabled [(ngModel)]= "image" type="file"></ion-input>
+    <!-- Text Area -->
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+  <!-- <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="imageFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div> -->
+
+
+</div>
+
+
+
+
+<!-- File uploading requires server -->
+<div *ngIf="selectedName=='File'">
+  <ion-card *ngIf="file!==null">
+    <ion-card-header>
+     <ion-card-subtitle style="font-family: cursive; text-transform:capitalize;">The generated QR appears here</ion-card-subtitle>
+
+    </ion-card-header>
+    <ion-card-content style="text-align: center;">
+     <ngx-qrcode [elementType]="elementType" [value]="file"   errorCorrectionLevel="L"></ngx-qrcode>
+     <ion-button  expand="full" color="dark" (click)="download()" style="font-family: cursive; margin: 5px;"><ion-icon name="download"></ion-icon><strong style="text-transform: capitalize">Save</strong><strong>QR</strong></ion-button>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card style="padding-top: 10px;">
+    <ion-card-subtitle style="padding-left: 6px;"><strong>This feature will be enabled soon</strong></ion-card-subtitle>
+    <!-- A button to clear text -->
+    <ion-input disabled [(ngModel)]= "file" type="file"></ion-input>
+    <!-- Text Area -->
+  </ion-card>
+  <div class="custom-text"><strong style="color: red;">*</strong>The QR is generated real time</div>
+
+  <!-- <div style="text-align: center;">
+    <ion-button  slot="end" color="dark" (click)="imageFn()" style="font-family: cursive; margin: 5px;"><strong style="text-transform: capitalize">Create</strong><strong>QR</strong></ion-button>
+
+  </div> -->
+
+
+</div>
+
+</ion-content>

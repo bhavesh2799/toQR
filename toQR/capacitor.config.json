@@ -1,0 +1,13 @@
+{
+  "appId": "com.technologylife.toQR",
+  "appName": "toQR",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {}
+}

@@ -1,0 +1,7 @@
+{
+  "name": "toQR",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

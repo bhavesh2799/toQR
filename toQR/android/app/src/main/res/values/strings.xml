@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">toQR</string>
+    <string name="title_activity_main">toQR</string>
+    <string name="package_name">com.technologylife.toQR</string>
+    <string name="custom_url_scheme">com.technologylife.toQR</string>
+</resources>
